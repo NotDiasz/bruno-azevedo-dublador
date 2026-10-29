@@ -1,0 +1,37 @@
+---
+// Selo Mirage aprovado (exploração 04, "Lente sobreposta"). Os desenhos vêm de
+// brand/logo/: a versão completa, com as lâminas do diafragma, vale de 48 px
+// para cima; abaixo disso as lâminas somem e entra a reduzida.
+import completo from "../../brand/logo/selo-mirage-cor.svg?raw";
+import reduzido from "../../brand/logo/selo-mirage-reduzido-cor.svg?raw";
+
+interface Props {
+  tamanho?: string;
+  reduzido?: boolean;
+  class?: string;
+}
+const { tamanho = "4rem", reduzido: usarReduzido = false, class: classe = "" } = Astro.props;
+// O selo é decorativo ao lado do nome escrito: tira o rótulo do SVG.
+const svg = (usarReduzido ? reduzido : completo)
+  .replace(/\s*role="img"/, "")
+  .replace(/\s*aria-label="[^"]*"/, "");
+---
+<span
+  class:list={["selo-mirage", classe]}
+  style={`--selo: ${tamanho}`}
+  aria-hidden="true"
+  set:html={svg}
+/>
+
+<style>
+  .selo-mirage {
+    display: inline-flex;
+    align-items: center;
+    block-size: var(--selo);
+    flex: none;
+  }
+  .selo-mirage :global(svg) {
+    block-size: 100%;
+    inline-size: auto;
+  }
+</style>

@@ -1,0 +1,265 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Cabecalho from "../../components/Cabecalho.astro";
+import Figura from "../../components/Figura.astro";
+import PlayerAudio from "../../components/PlayerAudio.astro";
+import FiltroTrabalhos from "../../components/FiltroTrabalhos";
+import Rodape from "../../components/Rodape.astro";
+import { figuraDoTrabalho, legendaCartaz, trabalhosOrdenados } from "../../lib/midia";
+import { funcoes, tipos } from "../../data/site";
+
+const trabalhos = await Promise.all(
+  (await trabalhosOrdenados()).map(async (t) => ({
+    t,
+    figura: await figuraDoTrabalho(t.data.cartaz, legendaCartaz(t), 800),
+    Corpo: (await render(t)).Content,
+  })),
+);
+const opcoes = Object.entries(tipos)
+  .map(([valor, rotulo]) => ({ valor, rotulo, quantidade: trabalhos.filter(({ t }) => t.data.tipo === valor).length }))
+  .filter((o) => o.quantidade > 0);
+---
+<Base
+  title="Trabalhos de Bruno Azevedo, dublador e narrador"
+  description="Filmes, séries, jogos e narrações com a voz de Bruno Azevedo, com personagem, ator original e ano."
+>
+  <Cabecalho slot="antes" />
+  <section class="lista" aria-labelledby="lista-titulo">
+    <div class="lista__topo">
+      <div class="lista__abertura">
+        <h1 id="lista-titulo" class="lista__titulo" data-entra>Trabalhos</h1>
+        <p class="lista__frase" data-entra>
+          Filmes, séries e jogos com a voz de Bruno Azevedo em português, do personagem à narração.
+        </p>
+        <FiltroTrabalhos client:load tipos={opcoes} total={trabalhos.length} />
+      </div>
+      <ul class="lista__cartazes" role="list" aria-label="Atalhos para cada trabalho">
+        {trabalhos.slice(0, 4).map(({ t, figura }) => (
+          <li data-entra>
+            <a href={`#${t.id}`} class="lista__atalho">
+              <Figura figura={{ ...figura, alt: "" }} sizes="(max-width: 760px) 22vw, 12vw" cedo />
+              <span class="sr-only">{t.data.titulo}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <ol class="lista__itens" role="list">
+      {trabalhos.map(({ t, figura, Corpo }) => (
+        <li class="trabalho" id={t.id} data-tipo={t.data.tipo} data-entra>
+          <div class="trabalho__cartaz">
+            <Figura figura={figura} sizes="(max-width: 760px) 40vw, 18vw" />
+          </div>
+          <div class="trabalho__texto">
+            <h2 class="trabalho__titulo">{t.data.titulo}</h2>
+            <dl class="trabalho__ficha">
+              <div>
+                <dt>Personagem</dt>
+                <dd>{t.data.personagem}</dd>
+              </div>
+              {t.data.atorOriginal && (
+                <div>
+                  <dt>Original</dt>
+                  <dd>{t.data.atorOriginal}</dd>
+                </div>
+              )}
+              <div>
+                <dt>Tipo</dt>
+                <dd>{tipos[t.data.tipo]}</dd>
+              </div>
+              <div>
+                <dt>Função</dt>
+                <dd>{funcoes[t.data.funcao]}</dd>
+              </div>
+              {t.data.ano && (
+                <div>
+                  <dt>Ano</dt>
+                  <dd>{t.data.ano}</dd>
+                </div>
+              )}
+            </dl>
+            <div class="trabalho__corpo">
+              <Corpo />
+            </div>
+            {t.data.exemplo && <span class="etiqueta-exemplo">Exemplo</span>}
+            <PlayerAudio src={t.data.audio} rotulo={`Trecho de ${t.data.personagem} em ${t.data.titulo}`} />
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+  <Rodape slot="depois" />
+</Base>
+
+<style>
+  .lista {
+    padding: clamp(3rem, 8vw, 7rem) var(--margin) var(--section-gap);
+  }
+
+  .lista__topo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    gap: var(--gutter) clamp(2rem, 5vw, 5rem);
+    margin-bottom: clamp(4rem, 8vw, 7.5rem);
+  }
+
+  .lista__abertura {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .lista__cartazes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lista__atalho {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: clip;
+    background: var(--surface);
+  }
+
+  .lista__atalho :global(.figura) {
+    transition: transform var(--t-ui) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .lista__atalho:hover :global(.figura) {
+      transform: scale(1.04);
+    }
+  }
+
+  .lista__titulo {
+    color: var(--field);
+    font-size: var(--step-poster);
+    line-height: 0.9;
+  }
+
+  .lista__frase {
+    max-width: 38ch;
+    font-size: var(--step-lead);
+    line-height: 1.25;
+  }
+
+  .lista__itens {
+    display: grid;
+    gap: clamp(3.5rem, 7vw, 6rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .trabalho {
+    display: grid;
+    grid-template-columns: minmax(10rem, 3fr) 9fr;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .trabalho[hidden] {
+    display: none;
+  }
+
+  .trabalho__cartaz {
+    aspect-ratio: 4 / 5;
+    overflow: clip;
+    background: var(--surface);
+  }
+
+  .trabalho__texto {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
+  }
+
+  .trabalho__titulo {
+    font-size: var(--step-head);
+  }
+
+  .trabalho__ficha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2.5rem;
+    margin: 0;
+  }
+
+  .trabalho__ficha dt {
+    color: var(--muted);
+  }
+
+  .trabalho__ficha dd {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .trabalho__corpo {
+    max-width: 60ch;
+  }
+
+  .lista :global(.filtro) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .lista :global(.filtro__opcao) {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color var(--t-hover) ease,
+      color var(--t-hover) ease,
+      transform var(--t-press) var(--ease-out);
+  }
+
+  .lista :global(.filtro__opcao:active) {
+    transform: scale(0.97);
+  }
+
+  .lista :global(.filtro__opcao[aria-pressed="true"]) {
+    background: var(--field);
+    color: var(--field-ink);
+  }
+
+  .lista :global(.filtro__quantidade) {
+    margin-left: 0.25rem;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 760px) {
+    .lista__topo {
+      grid-template-columns: 1fr;
+    }
+
+    .trabalho {
+      grid-template-columns: 40% 1fr;
+      gap: 1rem;
+    }
+
+    .trabalho__titulo {
+      font-size: var(--step-lead);
+    }
+
+    .trabalho__ficha {
+      gap: 0.75rem 1.25rem;
+      font-size: var(--step-body);
+    }
+
+    .trabalho__corpo {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

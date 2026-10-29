@@ -1,0 +1,104 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+
+// Player de um trecho de áudio. Não aparece quando o trabalho não tem áudio
+// (audio: null) ou quando o arquivo ainda não está em public/.
+interface Props {
+  src?: string | null;
+  rotulo: string;
+}
+const { src, rotulo } = Astro.props;
+const existe = Boolean(src && fs.existsSync(path.join(process.cwd(), "public", decodeURI(src))));
+---
+{existe && (
+  <div class="player" data-player>
+    <button class="player__botao" type="button" data-player-botao aria-pressed="false">
+      <span class="rec" aria-hidden="true"></span>
+      <span data-player-rotulo>Ouvir</span>
+      <span class="sr-only">{rotulo}</span>
+    </button>
+    <span class="player__tempo" data-player-tempo aria-hidden="true">0:00</span>
+    <audio preload="none" src={src} data-player-audio></audio>
+    <noscript><audio controls preload="none" src={src}></audio></noscript>
+  </div>
+)}
+
+<style>
+  .player {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .player__botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 0;
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform var(--t-press) var(--ease-out);
+  }
+
+  .player__botao:active {
+    transform: scale(0.97);
+  }
+
+  .player__botao .rec {
+    color: var(--accent);
+  }
+
+  .player__botao[aria-pressed="true"] .rec {
+    animation: rec 1s steps(2, jump-none) infinite;
+  }
+
+  .player__tempo {
+    color: var(--muted);
+    font-size: var(--step-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @keyframes rec {
+    50% {
+      opacity: 0.2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player__botao[aria-pressed="true"] .rec {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Um player por vez: tocar um pausa os outros.
+  const players = [...document.querySelectorAll<HTMLElement>("[data-player]")];
+  // Relógio do trecho (m:ss), não numeração. taste-skill-ignore
+  const formatar = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`; // taste-skill-ignore
+  players.forEach((player) => {
+    const botao = player.querySelector<HTMLButtonElement>("[data-player-botao]")!;
+    const rotulo = player.querySelector<HTMLElement>("[data-player-rotulo]")!;
+    const tempo = player.querySelector<HTMLElement>("[data-player-tempo]")!;
+    const audio = player.querySelector<HTMLAudioElement>("[data-player-audio]")!;
+    const marcar = (tocando: boolean) => {
+      botao.setAttribute("aria-pressed", String(tocando));
+      rotulo.textContent = tocando ? "Pausar" : "Ouvir";
+    };
+    botao.addEventListener("click", () => {
+      if (audio.paused) {
+        document.querySelectorAll<HTMLAudioElement>("[data-player-audio]").forEach((outro) => outro !== audio && outro.pause());
+        audio.play().catch(() => marcar(false));
+      } else audio.pause();
+    });
+    audio.addEventListener("play", () => marcar(true));
+    audio.addEventListener("pause", () => marcar(false));
+    audio.addEventListener("ended", () => marcar(false));
+    audio.addEventListener("timeupdate", () => (tempo.textContent = formatar(audio.currentTime)));
+  });
+</script>

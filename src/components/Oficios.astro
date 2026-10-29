@@ -1,0 +1,169 @@
+﻿---
+import Objeto3D from "./Objeto3D";
+import { mailto } from "../data/site";
+const oficios = [
+  {
+    nome: "Dublagem",
+    frase:
+      "Versão brasileira de personagens de filmes, séries, animações e jogos, com sincronia labial e interpretação fiel ao original.",
+    fato: "Voz brasileira de Joel Kinnaman, Joe Alwyn e Michael Sirow.",
+    acao: "Solicitar orçamento",
+    assunto: "Orçamento de dublagem",
+  },
+  {
+    nome: "Direção de dublagem",
+    frase:
+      "Escolha de elenco, preparação do texto e condução das gravações em estúdio, do primeiro ao último loop.",
+    fato: "Direção de projetos de dublagem no estúdio.",
+    acao: "Solicitar orçamento",
+    assunto: "Orçamento de direção de dublagem",
+  },
+  {
+    nome: "Narração e locução",
+    frase:
+      "Narração esportiva, institucional e publicitária, gravada com qualidade de estúdio.",
+    fato: "Narrador do Dream League Soccer 2026.",
+    acao: "Solicitar orçamento",
+    assunto: "Orçamento de narração",
+  },
+];
+---
+
+<section
+  class="oficios"
+  id="servicos"
+  aria-labelledby="oficios-titulo"
+  data-oficios
+>
+  <h2 id="oficios-titulo" data-entra>Serviços</h2>
+  <p class="oficios__lead" data-entra>
+    Dublagem, direção de dublagem e narração para cinema, séries, jogos e
+    publicidade.
+  </p>
+  <div class="oficios__corpo">
+    <div class="oficios__objeto">
+      <Objeto3D tipo="microfone" client:load />
+    </div>
+    <div class="oficios__cartelas">
+      {oficios.map((o) => (
+        <article class="oficio" data-oficio>
+          <h3 class="oficio__nome" data-entra>
+            {o.nome}
+          </h3>
+          <p class="oficio__frase" data-entra>
+            {o.frase}
+          </p>
+          <p class="oficio__fato" data-entra>
+            {o.fato}
+          </p>
+          <a class="acao" href={mailto(o.assunto)} data-entra>
+            {o.acao}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="M5 19 19 5M5 5h14v14" />
+            </svg>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+<style>
+  .oficios {
+    padding: var(--section-gap) var(--margin) 5rem;
+    position: relative;
+    background: var(--estudio);
+  }
+  .oficios h2 {
+    font-size: clamp(3.5rem, 7.7vw, 8.5rem);
+    line-height: 0.94;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+  }
+  .oficios__lead {
+    max-width: 30rem;
+    margin: 1.25rem 0 2rem;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .oficios__corpo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gutter);
+    align-items: start;
+  }
+  .oficios__objeto {
+    position: sticky;
+    top: 4svh;
+    height: 88svh;
+  }
+  .oficios__cartelas {
+    position: relative;
+  }
+  .oficio {
+    display: flex;
+    min-height: 66svh;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 1.5rem;
+    padding-block: 3rem;
+  }
+  .oficio__nome {
+    font-size: clamp(4rem, 7.5vw, 8rem);
+  }
+  .oficio__frase {
+    font-size: var(--step-lead);
+    max-width: 25ch;
+    line-height: 1.3;
+  }
+  .oficio__fato {
+    max-width: 32ch;
+    color: var(--muted);
+  }
+  .oficio .acao {
+    font-size: 1rem;
+    margin-top: 0.4rem;
+  }
+  @media (max-width: 760px) {
+    .oficios {
+      padding-block: 4.5rem 3rem;
+    }
+    .oficios h2 {
+      font-size: 15.7vw;
+      max-width: 7ch;
+    }
+    .oficios__corpo {
+      display: block;
+    }
+    .oficios__objeto {
+      position: relative;
+      height: 52svh;
+      top: auto;
+      margin-block: 1rem;
+    }
+    .oficio {
+      min-height: 0;
+      gap: 1rem;
+      padding-block: 2.5rem;
+    }
+    .oficio__nome {
+      font-size: 10vw;
+    }
+    .oficio__frase {
+      font-size: 1.25rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .oficios__objeto {
+      position: relative;
+      top: auto;
+    }
+  }
+</style>

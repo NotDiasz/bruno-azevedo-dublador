@@ -1,0 +1,459 @@
+---
+import Figura from "./Figura.astro";
+import SeloMirage from "./SeloMirage.astro";
+import Objeto3D from "./Objeto3D";
+import Nevoa from "./Nevoa.astro";
+import {
+  figuraDoTrabalho,
+  trabalhosOrdenados,
+  imagemBruno,
+  videosHero,
+} from "../lib/midia";
+const poster = await imagemBruno("hero");
+const posterMobile = await imagemBruno("heroMobile");
+const original = await imagemBruno("retrato");
+const primeiro = (await trabalhosOrdenados()).find(
+  (t) => t.data.atorOriginal && t.data.original,
+);
+const ator = primeiro
+  ? await figuraDoTrabalho(
+      primeiro.data.original,
+      primeiro.data.atorOriginal ?? "",
+      1400,
+    )
+  : original;
+// Na lente dupla, o Bruno no enquadramento comum dos rostos, o mesmo do ator.
+const encaixe = await imagemBruno("encaixe");
+const legendaAtor = primeiro
+  ? { nome: primeiro.data.atorOriginal ?? "", papel: `Original, ${primeiro.data.titulo}` }
+  : null;
+const videos = videosHero();
+---
+
+<section class="hero" id="inicio" aria-labelledby="titulo" data-hero>
+  <div class="hero__palco">
+    <div class="hero__midia" data-hero-midia>
+      <picture>
+        <source media="(max-width: 760px)" srcset={posterMobile.srcset ?? posterMobile.src ?? undefined} sizes="100vw" />
+        <Figura figura={poster} eager sizes="100vw" />
+      </picture>
+      {videos.length > 0 && (
+        <video
+          class="hero__video"
+          muted
+          playsinline
+          loop
+          poster={poster.src ?? undefined}
+          preload="metadata"
+          data-hero-video
+          aria-hidden="true"
+        >
+          {videos.map((v) => (
+            <source
+              data-src={v}
+              type={v.endsWith("webm") ? "video/webm" : "video/mp4"}
+            />
+          ))}
+        </video>
+      )}
+      <Nevoa class="hero__nevoa" />
+      <div class="hero__sombra" aria-hidden="true"></div>
+    </div>
+    <header class="hero__cabecalho" data-hero-ui>
+      <a class="hero__marca" href="#inicio" aria-label="Bruno Azevedo, início">
+        <SeloMirage tamanho="3rem" />
+        <span>
+          Bruno
+          <br />
+          Azevedo
+        </span>
+      </a>
+      <nav aria-label="Principal">
+        <a class="link" href="#trabalhos">Trabalhos</a>
+        <a class="link" href="#servicos">Serviços</a>
+        <a class="link" href="#sobre">Sobre</a>
+        <a class="acao" href="#contato">
+          Contato <span class="rec" aria-hidden="true"></span>
+        </a>
+      </nav>
+    </header>
+    <div class="hero__conteudo">
+      <h1 id="titulo" class="hero__titulo" aria-label="Bruno Azevedo, dublador, diretor de dublagem e narrador">
+        {["Bruno", "Azevedo"].map((palavra) => (
+          <span class="mascara-linha">
+            <span class="hero__palavra" aria-hidden="true">
+              {[...palavra].map((letra) => (
+                <span data-hero-letra>{letra}</span>
+              ))}
+            </span>
+          </span>
+        ))}
+      </h1>
+      <div class="hero__base" data-hero-ui>
+        <div class="hero__texto">
+          <p class="hero__funcao">Dublador, diretor de dublagem e narrador.</p>
+          <p class="hero__detalhe">
+            Voz brasileira de Joel Kinnaman, Joe Alwyn e Michael Sirow.
+            Narrador do Dream League Soccer 2026.
+          </p>
+        </div>
+        <div class="hero__acoes">
+          <a class="link hero__secundaria" href="#trabalhos">Ver trabalhos</a>
+          <a class="acao hero__contato" href="#contato">
+          <span class="rec" aria-hidden="true"></span>Solicitar orçamento
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <path d="M5 19 19 5M5 5h14v14" />
+          </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Duas lentes: o anel é uma renderização do modelo 3D e a foto fica no
+         mesmo elemento, sob a abertura; os dois se movem juntos e não há como
+         desalinhar. -->
+    <div class="hero__dupla" data-hero-dupla aria-hidden="true">
+      <figure class="lente" data-lente="esq">
+        <div class="lente__quadro">
+          <div class="lente__foto"><Figura figura={ator} sizes="(max-width:760px) 30vw, 17vw" /></div>
+          <img class="lente__anel" src="/media/v2/3d/lente-esq.webp" alt="" width="946" height="976" />
+        </div>
+        {legendaAtor && (
+          <figcaption data-lente-legenda>
+            <strong>{legendaAtor.nome}</strong>
+            <span>{legendaAtor.papel}</span>
+          </figcaption>
+        )}
+      </figure>
+      <figure class="lente" data-lente="dir">
+        <div class="lente__quadro">
+          <div class="lente__foto"><Figura figura={encaixe} sizes="(max-width:760px) 30vw, 17vw" /></div>
+          <img class="lente__anel" src="/media/v2/3d/lente-dir.webp" alt="" width="944" height="972" />
+        </div>
+        <figcaption data-lente-legenda>
+          <strong>Bruno Azevedo</strong>
+          <span>Versão brasileira</span>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="hero__objeto" data-hero-objeto>
+      <Objeto3D tipo="diafragma" client:load />
+    </div>
+    <button
+      class="hero__pausa"
+      type="button"
+      data-hero-pausa
+      aria-pressed="false"
+    >
+      Pausar imagem
+    </button>
+  </div>
+</section>
+<style>
+  .hero {
+    position: relative;
+    background: var(--bg);
+  }
+  .hero__palco {
+    position: relative;
+    min-height: 100svh;
+    overflow: clip;
+    isolation: isolate;
+  }
+  .hero__midia {
+    position: absolute;
+    inset: 0;
+  }
+  .hero__midia picture,
+  .hero__midia :global(.figura),
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 65% 44%;
+  }
+  /* Scrim neutro sobre a fotografia, exceção da regra de gradientes. taste-skill-ignore */
+  .hero__sombra {
+    position: absolute;
+    inset: 0; /* taste-skill-ignore: scrim neutro sobre fotografia */
+    background:
+      linear-gradient(/* taste-skill-ignore: scrim neutro sobre a fotografia */90deg, rgb(7 7 8 / 0.58), transparent 74%),
+      linear-gradient(/* taste-skill-ignore: scrim neutro sobre a fotografia */
+        0deg,
+        rgb(7 7 8 / 0.82),
+        transparent 50%,
+        rgb(7 7 8 / 0.18)
+      );
+  }
+  .hero__cabecalho {
+    position: absolute;
+    z-index: 4;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.75rem var(--margin);
+  }
+  .hero__marca {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    text-decoration: none;
+    font-size: 1rem;
+    line-height: 1.05;
+  }
+  .hero__cabecalho nav {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    font-size: 1rem;
+  }
+  .hero__conteudo {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    gap: 2.6rem;
+    min-height: 100svh;
+    padding: 8.5rem var(--margin) 3.2rem;
+  }
+  .hero__titulo {
+    font-size: clamp(6rem, 15.6vw, 16rem);
+    line-height: 0.81;
+    font-weight: 300;
+    letter-spacing: -0.064em;
+    max-width: 80%;
+  }
+  .hero__palavra {
+    display: block;
+  }
+  .hero__palavra > span {
+    display: inline-block;
+  }
+  .hero__base {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 2rem;
+  }
+  .hero__texto {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 34rem;
+  }
+  .hero__funcao {
+    font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+    line-height: 1.25;
+  }
+  .hero__detalhe {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .hero__acoes {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+  }
+  .hero__secundaria {
+    font-size: 1rem;
+  }
+  .hero__contato {
+    font-size: 1.125rem;
+  }
+  .hero__objeto {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .hero__dupla {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 3vw;
+    z-index: 6;
+  }
+  .lente {
+    margin: 0;
+    display: grid;
+    gap: 1.25rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .lente__quadro {
+    position: relative;
+    width: 25vw;
+    aspect-ratio: 946 / 976;
+  }
+  /* A abertura do anel ocupa 66,7% × 69,5% da imagem, centrada: a foto fica um
+     pouco maior que ela, e a borda do anel cobre a emenda. */
+  .lente__foto {
+    position: absolute;
+    left: 15.8%;
+    right: 15.8%;
+    top: 14.4%;
+    bottom: 14.4%;
+    border-radius: 50%;
+    overflow: clip;
+    background: var(--surface);
+  }
+  .lente__foto :global(.figura) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 46%;
+  }
+  .lente__anel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .lente figcaption {
+    display: grid;
+    gap: 0.2rem;
+    font-size: 1rem;
+  }
+  .lente figcaption span {
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .hero__pausa {
+    position: absolute;
+    bottom: 1.1rem;
+    right: var(--margin);
+    z-index: 7;
+    border: 0;
+    background: transparent;
+    padding: 0.4rem 0;
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+  }
+  .hero__pausa:active {
+    opacity: 0.65;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js:not(.sem-movimento)) .hero {
+      height: 165svh;
+    }
+    :global(html.js:not(.sem-movimento)) .hero__palco {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+    }
+    :global(html.js:not(.sem-movimento)) .hero__objeto {
+      display: block;
+    }
+    :global(html.js:not(.sem-movimento)) .hero__dupla {
+      display: flex;
+    }
+    :global(html.js:not(.intro-encerrada):not(.sem-movimento)) .hero__midia {
+      clip-path: circle(0% at 50% 50%);
+    }
+    :global(html.js:not(.intro-encerrada):not(.sem-movimento)) .hero__conteudo,
+    :global(html.js:not(.intro-encerrada):not(.sem-movimento))
+      .hero__cabecalho {
+      visibility: hidden;
+    }
+  }
+  @media (max-width: 760px) {
+    .hero__cabecalho {
+      padding: 1.1rem var(--margin);
+    }
+    .hero__cabecalho nav {
+      gap: 1rem;
+    }
+    .hero__cabecalho nav > .link {
+      display: none;
+    }
+    .hero__cabecalho nav .acao {
+      font-size: 0.875rem;
+      gap: 0.5rem;
+    }
+    .hero__marca {
+      font-size: 0.875rem;
+      gap: 0.6rem;
+    }
+    .hero__marca :global(svg) {
+      width: 2.35rem;
+      height: 2.35rem;
+    }
+    .hero__midia :global(.figura),
+    .hero__video {
+      object-position: 64% 34%;
+    }
+    .hero__conteudo {
+      padding: 8.2rem var(--margin) 5.2rem;
+      justify-content: start;
+      gap: 2rem;
+    }
+    .hero__titulo {
+      font-size: 22vw;
+      max-width: 100%;
+      line-height: 0.85;
+    }
+    .hero__base {
+      display: grid;
+      gap: 1.15rem;
+    }
+    .hero__funcao {
+      font-size: 1.1875rem;
+    }
+    .hero__detalhe {
+      font-size: 0.9375rem;
+    }
+    /* No celular os botões descem para a base da tela, sobre a foto. */
+    .hero__acoes {
+      position: absolute;
+      left: var(--margin);
+      right: var(--margin);
+      bottom: 3.7rem;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .hero__contato {
+      min-height: 3rem;
+      font-size: 1rem;
+    }
+    .lente__quadro {
+      width: 42vw;
+    }
+    .hero__dupla {
+      gap: 4vw;
+    }
+    .lente figcaption {
+      font-size: 0.9375rem;
+    }
+    .lente figcaption span {
+      font-size: 0.8125rem;
+    }
+    .hero__pausa {
+      bottom: 1.1rem;
+    }
+    :global(html.js:not(.sem-movimento)) .hero {
+      height: 140svh;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__pausa {
+      display: none;
+    }
+  }
+</style>
+

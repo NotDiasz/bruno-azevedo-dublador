@@ -1,0 +1,326 @@
+﻿@font-face {
+  font-family: Satoshi;
+  src: url("/fonts/Satoshi-Light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: Satoshi;
+  src: url("/fonts/Satoshi-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Satoshi;
+  src: url("/fonts/Satoshi-Medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: Satoshi;
+  src: url("/fonts/Satoshi-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+:root {
+  --bg: #070708;
+  --surface: #101012;
+  --ink: #eeeae2;
+  --muted: #8e8a83;
+  --rec: #e0261b;
+  --accent: var(--rec);
+  --accent-ink: #fff;
+  --metal: #1a1b1e;
+  --nevoa: #102a52;
+  --nevoa-profunda: #0b1c38;
+  --estudio: #090c13;
+  /* Compatibilidade com os controles da coleção, agora em marfim. */
+  --field: var(--ink);
+  --field-ink: var(--bg);
+  --field-soft: var(--surface);
+  --font: Satoshi, "Helvetica Neue", Arial, sans-serif;
+  --step-small: 0.875rem;
+  --step-body: clamp(1rem, 0.94rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1rem + 0.7vw, 1.75rem);
+  --step-head: clamp(3rem, 6.8vw, 7.5rem);
+  --step-poster: clamp(3.5rem, 11vw, 11rem);
+  --margin: clamp(1.25rem, 3.35vw, 3.5rem);
+  --gutter: clamp(1.25rem, 2.5vw, 3rem);
+  --section-gap: clamp(6rem, 10vw, 10rem);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  color-scheme: dark;
+  scrollbar-color: var(--muted) var(--bg);
+  scroll-padding-top: 1.5rem;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 var(--step-body)/1.5 var(--font);
+  letter-spacing: -0.015em;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+h1,
+h2,
+h3,
+p,
+figure,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+}
+h1,
+h2,
+h3 {
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+a {
+  color: inherit;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+button,
+a,
+input {
+  -webkit-tap-highlight-color: rgb(238 234 226 / 0.15);
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 6px;
+}
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.pular-conteudo {
+  position: fixed;
+  top: 1rem;
+  left: var(--margin);
+  z-index: 110;
+  padding: 0.8rem 1rem;
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-220%);
+}
+.pular-conteudo:focus-visible {
+  transform: none;
+}
+.figura {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.figura--reserva {
+  display: block;
+  background: var(--surface);
+}
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1.35rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--bg);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--t-press) var(--ease-out),
+    background-color var(--t-hover) ease;
+}
+.botao:active {
+  transform: scale(0.97);
+}
+.botao--escuro {
+  background: var(--bg);
+  color: var(--ink);
+}
+.rec {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--rec);
+  flex: none;
+}
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.24em;
+  text-decoration-color: transparent;
+  transition:
+    text-decoration-color var(--t-hover) ease,
+    opacity var(--t-hover) ease;
+}
+.acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 3rem;
+  text-decoration: none;
+}
+.acao svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  transition: transform var(--t-ui) var(--ease-out);
+}
+.acao:active {
+  opacity: 0.7;
+}
+@media (hover: hover) and (pointer: fine) {
+  .botao:hover {
+    background: #d5d0c7;
+  }
+  .botao--escuro:hover {
+    background: var(--surface);
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+  .acao:hover svg {
+    transform: translate(3px, -3px);
+  }
+}
+.etiqueta-exemplo {
+  display: inline-block;
+  padding: 0.2em 0.5em;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--step-small);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.mascara-linha {
+  display: block;
+  overflow: clip;
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+@media (max-width: 760px) {
+  :root {
+    --step-head: 15vw;
+    --step-poster: 17vw;
+  }
+  body {
+    line-height: 1.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+.objeto3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.objeto3d > div {
+  position: absolute !important;
+  inset: 0;
+}
+.objeto3d__fallback {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+.hero__objeto .objeto3d__fallback {
+  width: min(80vmin, 760px);
+  height: min(80vmin, 760px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .objeto3d__fallback {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__objeto {
+    display: block;
+    inset: auto var(--margin) 12rem auto;
+    width: 23vw;
+    height: 23vw;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  .hero__objeto .objeto3d__fallback {
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    transform: none;
+  }
+}

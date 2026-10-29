@@ -1,0 +1,55 @@
+﻿---
+import SeloMirage from "./SeloMirage.astro";
+---
+
+<div class="intro" data-intro>
+  <div class="intro__selo" data-intro-selo aria-hidden="true">
+    <SeloMirage tamanho="8rem" />
+  </div>
+  <button class="intro__pular" type="button" data-intro-pular>
+    Pular abertura
+  </button>
+</div>
+<style>
+  .intro {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js.com-intro:not(.intro-encerrada):not(.sem-movimento))
+      .intro {
+      display: grid;
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      place-items: center;
+      pointer-events: none;
+    }
+  }
+  .intro__selo {
+    color: var(--ink);
+  }
+  .intro__selo :global(path),
+  .intro__selo :global(circle) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 6;
+    stroke-dasharray: 1600;
+    stroke-dashoffset: 1600;
+  }
+  .intro__pular {
+    position: absolute;
+    right: var(--margin);
+    bottom: 1.5rem;
+    border: 0;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 3rem;
+    padding: 0.75rem 1rem;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform var(--t-press) var(--ease-out);
+  }
+  .intro__pular:active {
+    transform: scale(0.97);
+  }
+</style>

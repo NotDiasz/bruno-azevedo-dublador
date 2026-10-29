@@ -1,0 +1,100 @@
+---
+import { site } from "../data/site";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  intro?: boolean;
+}
+const {
+  title = site.title,
+  description = site.description,
+  intro = false,
+} = Astro.props;
+const canonical = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site).href
+  : undefined;
+// og:image precisa de URL absoluta: só sai quando SITE_URL estiver definido.
+const imagemSocial = Astro.site
+  ? new URL("/og-image.png", Astro.site).href
+  : undefined;
+const dados = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  jobTitle: "Dublador, diretor de dublagem e narrador",
+  description,
+  sameAs: site.redes.map((rede) => rede.href),
+  ...(canonical ? { url: canonical } : {}),
+};
+---
+
+<!doctype html>
+<html lang="pt-BR" class={intro ? "com-intro" : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#070708" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {imagemSocial && <meta property="og:image" content={imagemSocial} />}
+    {imagemSocial && <meta name="twitter:card" content="summary_large_image" />}
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link
+      rel="preload"
+      href="/fonts/Satoshi-Light.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Satoshi-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(dados).replace(/</g, "\u003c")}
+    />
+    <script is:inline>
+      (function () {
+        var raiz = document.documentElement;
+        raiz.classList.add("js");
+        if (
+          matchMedia("(prefers-reduced-motion: reduce)").matches ||
+          location.hash ||
+          scrollY > 0
+        )
+          raiz.classList.add("intro-encerrada");
+        // Se o script de movimento não subir, nada fica escondido.
+        setTimeout(function () {
+          if (!raiz.hasAttribute("data-movimento"))
+            raiz.classList.add("sem-movimento");
+        }, 5000);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="pular-conteudo" href="#conteudo">
+      Pular para o conteúdo
+    </a>
+    <slot name="antes" />
+    <main id="conteudo" tabindex="-1">
+      <slot />
+    </main>
+    <slot name="depois" />
+    <script>
+      import "../scripts/motion/index";
+    </script>
+  </body>
+</html>

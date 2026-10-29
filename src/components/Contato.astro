@@ -1,0 +1,120 @@
+﻿---
+import { mailto, site } from "../data/site";
+const [usuario, dominio] = site.email.split("@");
+---
+
+<section
+  class="contato"
+  id="contato"
+  aria-labelledby="contato-titulo"
+  data-contato
+>
+  <div class="contato__abertura">
+    <h2 id="contato-titulo" data-entra>Contato</h2>
+    <span class="rec" aria-hidden="true"></span>
+  </div>
+  <a class="contato__email" href={mailto("Contato pelo site")} data-entra>
+    <span>{usuario}@</span>
+    <span>{dominio}</span>
+  </a>
+  <div class="contato__base">
+    <p data-entra>
+      Para orçamentos de dublagem, direção de dublagem e narração, escreva para
+      o e-mail acima ou fale pelo Instagram.
+    </p>
+    <a class="acao" href={site.redes[0].href} rel="me" data-entra>
+      Instagram {site.handle}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <path d="M5 19 19 5M5 5h14v14" />
+      </svg>
+    </a>
+  </div>
+</section>
+<style>
+  .contato {
+    display: grid;
+    gap: 4rem;
+    padding: var(--section-gap) var(--margin);
+    background: var(--bg);
+  }
+  .contato__abertura {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+  .contato h2 {
+    font-size: clamp(3.5rem, 7.7vw, 8.5rem);
+    line-height: 0.94;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+  }
+  .contato__abertura .rec {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 1rem;
+  }
+  .contato__email {
+    display: grid;
+    font-size: 8.15vw;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+    text-decoration: none;
+  }
+  .contato__email span {
+    width: fit-content;
+  }
+  .contato__email span:first-child {
+    color: var(--muted);
+  }
+  .contato__email:hover span {
+    text-decoration: underline;
+    text-decoration-thickness: 0.035em;
+    text-underline-offset: 0.12em;
+  }
+  .contato__base {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 2rem;
+  }
+  .contato__base p {
+    max-width: 28ch;
+  }
+  .contato__base .acao {
+    font-size: 1rem;
+  }
+  @media (max-width: 760px) {
+    .contato {
+      gap: 2.5rem;
+      padding-block: 4.5rem;
+    }
+    .contato h2 {
+      font-size: 14vw;
+      max-width: 7ch;
+    }
+    .contato__abertura .rec {
+      width: 0.75rem;
+      height: 0.75rem;
+      margin-right: 0.3rem;
+    }
+    .contato__email {
+      font-size: 8.8vw;
+    }
+    .contato__email span:first-child {
+      font-size: 17vw;
+      margin-bottom: 0.3rem;
+    }
+    .contato__base {
+      display: grid;
+      gap: 1.5rem;
+    }
+  }
+</style>

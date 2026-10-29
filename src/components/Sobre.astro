@@ -1,0 +1,107 @@
+﻿---
+import Figura from "./Figura.astro";
+import { imagemBruno } from "../lib/midia";
+import { site } from "../data/site";
+const retrato = await imagemBruno("retrato");
+---
+
+<section class="sobre" id="sobre" aria-labelledby="sobre-titulo" data-sobre>
+  <div class="sobre__quadro" data-sobre-quadro>
+    <Figura figura={retrato} sizes="(max-width:760px) 100vw, 54vw" />
+  </div>
+  <div class="sobre__texto">
+    <h2 id="sobre-titulo" data-entra>Sobre</h2>
+    <div class="sobre__colunas" data-entra>
+      <p>
+        Bruno Azevedo é dublador, diretor de dublagem e narrador. É a voz
+        brasileira de Joel Kinnaman em The Silent Hour, de Joe Alwyn em The
+        Brutalist e de Michael Sirow em Terror em Crescent City, e o narrador do
+        Dream League Soccer 2026.
+      </p>
+      <p>
+        Também é roteirista, cineasta e ator, e apresenta o podcast{" "}
+        <a class="link" href={site.redes[1].href}>
+          @podescontrair_
+        </a>
+        .
+      </p>
+    </div>
+    <a class="acao" href={site.redes[0].href} rel="me" data-entra>
+      Instagram {site.handle}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <path d="M5 19 19 5M5 5h14v14" />
+      </svg>
+    </a>
+  </div>
+</section>
+<style>
+  .sobre {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--gutter);
+    padding: 5rem var(--margin) var(--section-gap);
+    align-items: stretch;
+  }
+  .sobre__quadro {
+    overflow: clip;
+    height: 83svh;
+    min-height: 600px;
+  }
+  .sobre__quadro :global(.figura) {
+    object-position: 50% 28%;
+  }
+  .sobre__texto {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    gap: 3rem;
+    padding: 2rem 0 1rem clamp(0rem, 2vw, 2rem);
+  }
+  .sobre h2 {
+    font-size: clamp(3.5rem, 7.7vw, 8.5rem);
+    line-height: 0.94;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+  }
+  .sobre__colunas {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 37ch;
+  }
+  .sobre__texto > .acao {
+    font-size: 1rem;
+  }
+  .sobre__colunas .link {
+    text-decoration-color: var(--muted);
+  }
+  @media (max-width: 760px) {
+    .sobre {
+      display: flex;
+      flex-direction: column;
+      padding-block: 2rem 4.5rem;
+      gap: 2rem;
+    }
+    .sobre__quadro {
+      height: 64svh;
+      min-height: 0;
+    }
+    .sobre__texto {
+      padding: 0;
+      gap: 2rem;
+    }
+    .sobre h2 {
+      font-size: 14vw;
+    }
+    .sobre h2 br {
+      display: none;
+    }
+  }
+</style>

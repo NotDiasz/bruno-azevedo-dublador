@@ -1,0 +1,37 @@
+---
+import type { Figura } from "../lib/midia";
+interface Props {
+  figura: Figura;
+  class?: string;
+  sizes?: string;
+  eager?: boolean;
+  /** Carrega já, sem prioridade: para imagens logo abaixo da primeira tela. */
+  cedo?: boolean;
+  posicao?: string;
+}
+const { figura, class: classe = "", sizes = "100vw", eager = false, cedo = false } = Astro.props;
+const posicao = Astro.props.posicao ?? figura.posicao;
+const proporcao = `${figura.width} / ${figura.height}`;
+---
+{figura.src ? (
+  <img
+    class:list={["figura", classe]}
+    src={figura.src}
+    srcset={figura.srcset}
+    sizes={figura.srcset ? sizes : undefined}
+    width={figura.width}
+    height={figura.height}
+    alt={figura.alt}
+    loading={eager || cedo ? "eager" : "lazy"}
+    fetchpriority={eager ? "high" : undefined}
+    decoding="async"
+    style={posicao ? `object-position: ${posicao}` : undefined}
+  />
+) : (
+  <span
+    class:list={["figura", "figura--reserva", classe]}
+    role="img"
+    aria-label={figura.alt}
+    style={`aspect-ratio: ${proporcao}`}
+  ></span>
+)}

@@ -1,0 +1,172 @@
+﻿---
+import Figura from "./Figura.astro";
+import SeloMirage from "./SeloMirage.astro";
+import { imagemBruno } from "../lib/midia";
+import { navegacao, site } from "../data/site";
+const close = await imagemBruno("close");
+---
+
+<footer class="rodape" data-rodape>
+  <div class="rodape__topo">
+    <SeloMirage tamanho="5rem" />
+    <nav aria-label="Seções do site">
+      <ul role="list">
+        {navegacao.map((item) => (
+          <li>
+            <a class="link" href={item.href}>
+              {item.rotulo}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <a class="link rodape__voltar" href="#conteudo">
+      Voltar ao início
+    </a>
+  </div>
+  <div class="rodape__miolo">
+    <div class="rodape__foto" data-rodape-foto>
+      <Figura figura={close} sizes="(max-width:760px) 35vw, 16vw" />
+    </div>
+    <p>
+      Dublador, diretor de
+      <br />dublagem e narrador.
+    </p>
+    <a class="acao" href={site.redes[0].href} rel="me">
+      {site.handle}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <path d="M5 19 19 5M5 5h14v14" />
+      </svg>
+    </a>
+  </div>
+  <p class="rodape__wordmark" aria-label="Bruno Azevedo">
+    <span>Bruno</span>
+    <span>Azevedo</span>
+  </p>
+  <p class="rodape__legal">
+    © {new Date().getFullYear()} Bruno Azevedo. Imagens das obras: material
+    oficial de divulgação, de seus respectivos titulares.
+  </p>
+</footer>
+<style>
+  .rodape {
+    padding: 3.5rem var(--margin) 1.5rem;
+    background: var(--surface);
+    overflow: clip;
+  }
+  .rodape__topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+  .rodape__topo nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 0;
+    list-style: none;
+    font-size: 1rem;
+  }
+  .rodape__voltar {
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+  }
+  .rodape__miolo {
+    display: flex;
+    align-items: end;
+    gap: 2rem;
+    margin-block: 4rem;
+  }
+  .rodape__foto {
+    width: 15vw;
+    aspect-ratio: 1;
+    overflow: clip;
+  }
+  .rodape__foto :global(.figura) {
+    object-position: 50% 30%;
+  }
+  .rodape__miolo p {
+    font-size: clamp(2rem, 4vw, 4rem);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .rodape__miolo > .acao {
+    margin-left: auto;
+    font-size: 1rem;
+  }
+  .rodape__wordmark {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 14.7vw;
+    font-weight: 300;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+    padding-bottom: 0.12em;
+  }
+  .rodape__legal {
+    margin-top: 1.75rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    max-width: 80ch;
+  }
+  @media (max-width: 760px) {
+    .rodape {
+      padding-top: 2.5rem;
+    }
+    .rodape__topo {
+      align-items: start;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .rodape__topo :global(.selo-mirage) {
+      height: 3.5rem;
+    }
+    .rodape__topo nav {
+      width: 65%;
+    }
+    .rodape__topo nav ul {
+      gap: 0.5rem 1.25rem;
+    }
+    .rodape__topo nav a {
+      display: inline-flex;
+      min-height: 2.75rem;
+      align-items: center;
+    }
+    .rodape__voltar {
+      width: 100%;
+    }
+    .rodape__miolo {
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-block: 2.5rem;
+    }
+    .rodape__foto {
+      width: 33vw;
+    }
+    .rodape__miolo p {
+      font-size: 7.5vw;
+    }
+    .rodape__miolo > .acao {
+      margin-left: 0;
+      width: 100%;
+    }
+    .rodape__wordmark {
+      display: grid;
+      gap: 0;
+      font-size: 22vw;
+      line-height: 0.86;
+      letter-spacing: -0.065em;
+    }
+  }
+</style>

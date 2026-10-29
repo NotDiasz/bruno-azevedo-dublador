@@ -1,0 +1,30 @@
+﻿---
+interface Props {
+  class?: string;
+}
+const { class: classe = "" } = Astro.props;
+---
+
+<!-- Ruído fractal rasterizado localmente: mantém a atmosfera sem refazer um filtro em cada quadro. -->
+<img
+  class:list={["nevoa", classe]}
+  src="/media/v2/3d/nevoa.webp"
+  alt=""
+  width="1200"
+  height="750"
+  aria-hidden="true"
+/>
+<style>
+  .nevoa {
+    position: absolute;
+    inset: -4%;
+    width: 108%;
+    height: 108%;
+    max-width: none;
+    object-fit: cover;
+    pointer-events: none;
+    /* Sem mix-blend-mode: a névoa se move o tempo todo, e o blend obriga a
+       repintar a tela inteira a cada quadro. Sobre o fundo escuro dá no mesmo. */
+    opacity: 0.3;
+  }
+</style>

@@ -1,0 +1,29 @@
+﻿OK public/media/hero-estudio.webp: 2400x1350 RGB
+OK public/media/bruno/retrato-poster.webp: 1600x2000 RGB
+OK public/media/bruno/retrato-microfone.webp: 1600x2000 RGB
+OK public/media/bruno/retrato-recorte.png: 1600x2000 RGBA
+   Alpha real: 0..255; cantos superiores transparentes
+OK public/media/bruno/retrato-recorte.webp: 1600x2000 RGBA
+   Alpha real: 0..255; cantos superiores transparentes
+OK public/media/bruno/close-rodape.webp: 1600x2000 RGB
+OK public/media/oficios/microfone.webp: 2400x1350 RGB
+OK public/media/oficios/direcao.webp: 2400x1350 RGB
+OK public/media/oficios/narracao.webp: 2400x1350 RGB
+OK public/media/narrador-dls.webp: 1200x1500 RGB
+OK public/media/fotos/bruno-atma.webp: 1600x1277 RGB
+OK public/media/fotos/bruno-estudio.webp: 1600x896 RGB
+OK src/content/trabalhos/cartazes/the-silent-hour.webp: 1200x1500 RGB
+OK src/content/trabalhos/cartazes/crescent-city.webp: 1200x1500 RGB
+OK src/content/trabalhos/cartazes/the-brutalist.webp: 1200x1500 RGB
+OK src/content/trabalhos/rostos/frank-shawn.webp: 1200x1500 RGB
+OK src/content/trabalhos/rostos/padre-victor.webp: 1200x1500 RGB
+OK src/content/trabalhos/rostos/harry-lee.webp: 1200x1500 RGB
+OK brand/midia-gerada/bruno/close-a.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/close-b.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/microfone-a.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/microfone-b.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/poster-a.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/poster-b.png: 1600x2000 RGB
+OK brand/midia-gerada/bruno/recorte-a.png: 1600x2000 RGBA
+OK brand/midia-gerada/bruno/recorte-b.png: 1600x2000 RGBA
+Contrato: 18/18 arquivos corretos; 8/8 variantes corretas.

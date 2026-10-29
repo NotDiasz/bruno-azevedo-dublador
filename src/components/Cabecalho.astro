@@ -1,0 +1,65 @@
+---
+import { navegacao } from "../data/site";
+
+// Barra simples das páginas internas: marca, links e uma ação.
+const atual = Astro.url.pathname;
+const links = navegacao.filter((item) => item.href !== "/#contato");
+---
+<header class="cabecalho">
+  <a class="cabecalho__marca" href="/">Bruno Azevedo</a>
+  <nav aria-label="Principal">
+    <ul role="list">
+      {links.map((item) => (
+        <li>
+          <a class="link" href={item.href} aria-current={atual === item.href ? "page" : undefined}>{item.rotulo}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <a class="botao" href="/#contato"><span class="rec" aria-hidden="true"></span>Contato</a>
+</header>
+
+<style>
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: var(--margin);
+  }
+
+  .cabecalho__marca {
+    font-size: var(--step-lead);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    text-decoration: none;
+  }
+
+  .cabecalho ul {
+    display: flex;
+    gap: 1.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  [aria-current="page"] {
+    color: var(--field);
+  }
+
+  @media (max-width: 760px) {
+    .cabecalho {
+      flex-wrap: wrap;
+    }
+
+    .cabecalho nav {
+      order: 3;
+      inline-size: 100%;
+    }
+
+    .cabecalho ul {
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+  }
+</style>

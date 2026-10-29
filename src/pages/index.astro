@@ -1,0 +1,23 @@
+---
+import Base from "../layouts/Base.astro";
+import Intro from "../components/Intro.astro";
+import Hero from "../components/Hero.astro";
+import Rostos from "../components/Rostos.astro";
+import Trabalhos from "../components/Trabalhos.astro";
+import Oficios from "../components/Oficios.astro";
+import Sobre from "../components/Sobre.astro";
+import Filmografia from "../components/Filmografia.astro";
+import Contato from "../components/Contato.astro";
+import Rodape from "../components/Rodape.astro";
+---
+<Base intro>
+  <Intro slot="antes" />
+  <Hero />
+  <Rostos />
+  <Trabalhos />
+  <Oficios />
+  <Sobre />
+  <Filmografia />
+  <Contato />
+  <Rodape slot="depois" />
+</Base>

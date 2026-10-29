@@ -1,0 +1,195 @@
+---
+import { trabalhosOrdenados } from "../lib/midia";
+import { funcoes, tipos } from "../data/site";
+
+// A lista completa, gerada da mesma coleção: um tamanho de tipo só.
+const trabalhos = await trabalhosOrdenados();
+const grupos = Object.entries(tipos)
+  .map(([tipo, rotulo]) => ({
+    tipo,
+    rotulo,
+    itens: trabalhos.filter((t) => t.data.tipo === tipo),
+  }))
+  .filter((g) => g.itens.length);
+const compacta = trabalhos.length < 8;
+---
+
+<section
+  class:list={["filmografia", { "filmografia--compacta": compacta }]}
+  id="filmografia"
+  aria-labelledby="filmografia-titulo"
+  data-filmografia
+>
+  <h2 id="filmografia-titulo" class="filmografia__titulo" data-entra>
+    Filmografia
+  </h2>
+  <table class="filmografia__tabela">
+    <caption class="sr-only">
+      Trabalhos de Bruno Azevedo: obra, personagem, ator original e ano
+    </caption>
+    <colgroup>
+      <col class="filmografia__col" />
+      <col class="filmografia__col" />
+      <col class="filmografia__col" />
+      <col class="filmografia__col-ano" />
+    </colgroup>
+    <thead class="sr-only">
+      <tr>
+        <th scope="col">Obra</th>
+        <th scope="col">Personagem</th>
+        <th scope="col">Ator original ou função</th>
+        <th scope="col">Ano</th>
+      </tr>
+    </thead>
+    {grupos.map((g) => (
+      <tbody>
+        <tr class="filmografia__grupo" data-entra>
+          <th colspan="4" scope="colgroup">
+            {g.rotulo}
+          </th>
+        </tr>
+        {g.itens.map((t) => (
+          <tr class="filmografia__linha" data-entra>
+            <th scope="row" class="filmografia__obra">
+              <a class="link" href={`/trabalhos/#${t.id}`}>
+                {t.data.titulo}
+              </a>
+              {t.data.exemplo && <span class="etiqueta-exemplo">Exemplo</span>}
+            </th>
+            <td>{t.data.personagem}</td>
+            <td class="filmografia__ator">
+              {t.data.atorOriginal ?? funcoes[t.data.funcao]}
+            </td>
+            <td class="filmografia__ano">{t.data.ano ?? ""}</td>
+          </tr>
+        ))}
+      </tbody>
+    ))}
+  </table>
+</section>
+
+<style>
+  .filmografia {
+    --tamanho: clamp(1.25rem, 2.1vw, 1.875rem);
+    padding: 5rem var(--margin);
+    background: var(--surface);
+  }
+
+  .filmografia--compacta {
+    --tamanho: clamp(1.25rem, 2.6vw, 2.5rem);
+  }
+
+  .filmografia__col {
+    inline-size: 30%;
+  }
+
+  .filmografia__col-ano {
+    inline-size: 10%;
+  }
+
+  .filmografia__titulo,
+  .filmografia__tabela {
+    font-size: var(--tamanho);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+  }
+
+  .filmografia__titulo {
+    color: var(--ink);
+    font-size: 9.5vw;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    margin-bottom: 2rem;
+  }
+
+  .filmografia__tabela {
+    inline-size: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .filmografia__tabela th,
+  .filmografia__tabela td {
+    padding: 0;
+    font-weight: 400;
+    text-align: left;
+    vertical-align: baseline;
+  }
+
+  .filmografia__ano {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .filmografia__grupo th {
+    padding-top: 32px;
+    padding-bottom: 20px;
+    color: var(--muted);
+  }
+
+  .filmografia__obra .etiqueta-exemplo {
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .filmografia__obra .link {
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+
+  @media (max-width: 760px) {
+    .filmografia__tabela,
+    .filmografia__tabela tbody,
+    .filmografia__tabela tr {
+      display: block;
+    }
+
+    .filmografia__titulo {
+      font-size: 15vw;
+    }
+
+    .filmografia__linha {
+      display: grid !important;
+      grid-template-columns: 1fr auto;
+      column-gap: 1rem;
+      margin-bottom: 18px;
+    }
+
+    .filmografia__linha > * {
+      display: block;
+      inline-size: auto !important;
+    }
+
+    .filmografia__obra {
+      grid-column: 1 / -1;
+      font-size: var(--step-lead);
+      line-height: 1.3;
+    }
+
+    .filmografia__linha td {
+      color: var(--muted);
+      font-size: var(--step-small);
+      line-height: 1.4;
+    }
+
+    .filmografia__linha td:nth-child(2) {
+      grid-column: 1;
+    }
+
+    .filmografia__ator {
+      grid-column: 1;
+    }
+
+    .filmografia__ano {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .filmografia__grupo th {
+      display: block;
+      padding-top: 40px;
+      font-size: var(--step-lead);
+    }
+  }
+</style>
