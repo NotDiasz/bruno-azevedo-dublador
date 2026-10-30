@@ -1,0 +1,421 @@
+---
+import { trabalhosOrdenados } from "../lib/midia";
+import { tipos } from "../data/site";
+import fs from "node:fs";
+import path from "node:path";
+
+// Trechos de voz do Bruno, um por trabalho do portfólio. O áudio vem do campo
+// `audio` de cada trabalho (src/content/trabalhos/); enquanto o arquivo não
+// existe em public/, a faixa aparece com a onda parada e "Em breve".
+const existe = (src?: string | null) =>
+  Boolean(src && fs.existsSync(path.join(process.cwd(), "public", decodeURI(src))));
+
+// Onda desenhada de cada faixa: decorativa e fixa (a mesma a cada build),
+// calculada a partir do nome do trabalho.
+const BARRAS = 56;
+function onda(semente: string) {
+  let h = 2166136261;
+  for (const c of semente) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return Array.from({ length: BARRAS }, (_, i) => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    const ruido = ((h >>> 0) % 1000) / 1000;
+    const envelope = Math.sin((Math.PI * (i + 0.5)) / BARRAS) ** 0.6;
+    return +(0.14 + envelope * (0.3 + ruido * 0.56)).toFixed(3);
+  });
+}
+
+const faixas = (await trabalhosOrdenados()).map((t) => ({
+  id: t.id,
+  nome: t.data.personagem,
+  obra: t.data.atorOriginal
+    ? `${t.data.atorOriginal}, em ${t.data.titulo}`
+    : `${tipos[t.data.tipo]}, ${t.data.titulo}`,
+  audio: existe(t.data.audio) ? t.data.audio : null,
+  barras: onda(t.id),
+}));
+
+// A linha de som que se desenha no fim do mergulho: uma senoide com envelope,
+// mais forte no meio, em coordenadas de 1440 × 240.
+const pontos: string[] = [];
+for (let x = 0; x <= 1440; x += 4) {
+  const u = x / 1440;
+  const envelope = Math.sin(Math.PI * u) ** 2.2;
+  const y =
+    120 +
+    envelope *
+      (64 * Math.sin(u * 61) * Math.sin(u * 9.3 + 0.6) +
+        18 * Math.sin(u * 173));
+  pontos.push(`${x === 0 ? "M" : "L"}${x} ${y.toFixed(1)}`);
+}
+const caminhoOnda = pontos.join("");
+---
+
+<section class="audios" id="audios" aria-labelledby="audios-titulo" data-audios>
+  <div class="audios__mergulho" data-audios-mergulho>
+    <div class="audios__palco">
+      <!-- A câmera atravessa a grade do microfone: a imagem cresce em direção
+           à grade, uma grade desenhada assume no lugar e se abre até o preto,
+           onde a linha de som se desenha. -->
+      <img
+        class="audios__microfone"
+        src="/media/v2/3d/microfone.webp"
+        alt=""
+        width="1200"
+        height="1200"
+        loading="lazy"
+        decoding="async"
+        data-audios-microfone
+        aria-hidden="true"
+      />
+      <svg class="audios__grade" viewBox="0 0 1000 1000" aria-hidden="true" data-audios-grade>
+        <defs>
+          <pattern
+            id="audios-malha"
+            width="12"
+            height="12"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(8)"
+          >
+            <path d="M12 0H0V12" fill="none" stroke="#92958f" stroke-width="0.9" />
+          </pattern>
+        </defs>
+        <rect width="1000" height="1000" fill="url(#audios-malha)" />
+      </svg>
+      <svg
+        class="audios__onda"
+        viewBox="0 0 1440 240"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path d={caminhoOnda} pathLength="1" data-audios-onda />
+      </svg>
+      <div class="audios__abertura">
+        <h2 id="audios-titulo" class="audios__titulo">
+          <span class="mascara-linha"><span data-audios-titulo>Áudios</span></span>
+        </h2>
+        <p class="audios__lead" data-audios-lead>
+          Trechos de dublagem e narração na voz do Bruno.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <ol class="audios__faixas" role="list">
+    {faixas.map((f) => (
+      <li class="faixa" data-faixa data-entra>
+        <button
+          class="faixa__tocar"
+          type="button"
+          disabled={!f.audio}
+          aria-pressed="false"
+          data-faixa-botao
+        >
+          <svg class="faixa__icone faixa__icone--tocar" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5.5v13l10.5-6.5z" />
+          </svg>
+          <svg class="faixa__icone faixa__icone--pausa" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+          </svg>
+          <span class="sr-only">
+            {f.audio ? `Ouvir trecho de ${f.nome}` : `Trecho de ${f.nome}, em breve`}
+          </span>
+        </button>
+        <div class="faixa__texto">
+          <span class="faixa__nome">{f.nome}</span>
+          <span class="faixa__obra">{f.obra}</span>
+        </div>
+        <div class="faixa__onda" aria-hidden="true" data-faixa-onda>
+          {f.barras.map((a) => (
+            <span style={`--a:${a}`} />
+          ))}
+        </div>
+        <span class="faixa__estado" data-faixa-tempo aria-hidden={f.audio ? "true" : undefined}>
+          {f.audio ? "0:00" : "Em breve"}
+        </span>
+        {f.audio && <audio preload="none" src={f.audio} data-player-audio />}
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .audios {
+    position: relative;
+    background: var(--bg);
+    padding-bottom: var(--section-gap);
+  }
+  .audios__palco {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: clip;
+    padding: var(--section-gap) var(--margin) 4rem;
+  }
+  .audios__microfone,
+  .audios__grade {
+    display: none;
+  }
+  .audios__onda {
+    width: 100%;
+    height: 9rem;
+    overflow: visible;
+  }
+  .audios__onda path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+  .audios__abertura {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    text-align: center;
+  }
+  .audios__titulo {
+    font-size: clamp(3.5rem, 7.7vw, 8.5rem);
+    line-height: 0.94;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+  }
+  .audios__titulo [data-audios-titulo] {
+    display: block;
+  }
+  .audios__lead {
+    max-width: 26rem;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .audios__faixas {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 var(--margin);
+    list-style: none;
+  }
+  .faixa {
+    display: grid;
+    grid-template-columns: auto minmax(12rem, 1fr) minmax(0, 1.6fr) 6rem;
+    align-items: center;
+    gap: 1.75rem;
+    padding: 1.4rem 0;
+  }
+  .faixa__tocar {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    cursor: pointer;
+    transition: transform var(--t-press) var(--ease-out);
+  }
+  .faixa__tocar:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+  .faixa__tocar:disabled {
+    opacity: 1;
+    background: var(--surface);
+    color: var(--muted);
+  }
+  .faixa__icone {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: currentColor;
+  }
+  .faixa__icone--pausa,
+  .faixa__tocar[aria-pressed="true"] .faixa__icone--tocar {
+    display: none;
+  }
+  .faixa__tocar[aria-pressed="true"] .faixa__icone--pausa {
+    display: block;
+  }
+  .faixa__texto {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .faixa__nome {
+    font-size: var(--step-lead);
+    line-height: 1.15;
+  }
+  .faixa__obra {
+    font-size: var(--step-small);
+    color: var(--muted);
+  }
+  .faixa__onda {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 3.5rem;
+  }
+  .faixa__onda span {
+    flex: 1;
+    height: calc(var(--a) * 100%);
+    min-width: 2px;
+    border-radius: 2px;
+    background: var(--muted);
+    opacity: 0.55;
+    transform-origin: center;
+    transition:
+      background-color var(--t-hover) ease,
+      opacity var(--t-hover) ease;
+  }
+  .faixa__onda span[data-tocado] {
+    background: var(--ink);
+    opacity: 1;
+  }
+  .faixa__estado {
+    justify-self: end;
+    font-size: var(--step-small);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .faixa__tocar:not(:disabled):hover {
+      background: #d5d0c7;
+    }
+  }
+
+  /* Com movimento: o palco fica preso na tela enquanto a rolagem conduz o
+     mergulho. Sem ele (ou se o script não subir), fica só a abertura parada. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js:not(.sem-movimento)) .audios__mergulho {
+      height: 340svh;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__palco {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      padding: 0 var(--margin);
+      align-content: center;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__microfone {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: auto;
+      height: 86svh;
+      max-width: none;
+      aspect-ratio: 1;
+      /* O centramento (-50%, -50%) fica com o GSAP, que é dono do transform. */
+      /* Centro da grade na imagem renderizada do microfone. */
+      transform-origin: 53.3% 25%;
+      will-change: transform, opacity;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__grade {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 160vmax;
+      height: 160vmax;
+      max-width: none;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+    /* A linha corre abaixo do título, sem cruzar as letras. */
+    :global(html.js:not(.sem-movimento)) .audios__onda {
+      position: absolute;
+      left: 0;
+      top: calc(50% + 4rem);
+      height: 13rem;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__abertura {
+      translate: 0 -5.5rem;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__abertura {
+      position: relative;
+      z-index: 1;
+    }
+  }
+  @media (max-width: 760px) {
+    .audios__palco {
+      padding: 4.5rem var(--margin) 2rem;
+    }
+    .audios__titulo {
+      font-size: 14vw;
+    }
+    .audios__lead {
+      font-size: 1rem;
+    }
+    .faixa {
+      grid-template-columns: auto 1fr auto;
+      gap: 0.9rem 1rem;
+      padding: 1.1rem 0;
+    }
+    .faixa__tocar {
+      width: 3rem;
+      height: 3rem;
+    }
+    .faixa__nome {
+      font-size: 1.125rem;
+    }
+    .faixa__onda {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      height: 2.5rem;
+      gap: 2px;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__mergulho {
+      height: 280svh;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__microfone {
+      height: 72svh;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__onda {
+      top: calc(50% + 2rem);
+      height: 8rem;
+    }
+    :global(html.js:not(.sem-movimento)) .audios__abertura {
+      translate: 0 -4rem;
+    }
+  }
+</style>
+
+<script>
+  // Uma faixa por vez (e junto com os players da página de trabalhos): tocar
+  // uma pausa as outras. A onda acende até o ponto já ouvido.
+  // Relógio do trecho (m:ss), não numeração. taste-skill-ignore
+  const formatar = (s: number) =>
+    `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  document.querySelectorAll<HTMLElement>("[data-faixa]").forEach((faixa) => {
+    const audio = faixa.querySelector<HTMLAudioElement>("[data-player-audio]");
+    if (!audio) return;
+    const botao = faixa.querySelector<HTMLButtonElement>("[data-faixa-botao]")!;
+    const tempo = faixa.querySelector<HTMLElement>("[data-faixa-tempo]")!;
+    const barras = [...faixa.querySelectorAll<HTMLElement>("[data-faixa-onda] span")];
+    let acesas = 0;
+    const acender = () => {
+      const n = audio.duration
+        ? Math.round((audio.currentTime / audio.duration) * barras.length)
+        : 0;
+      if (n === acesas) return;
+      barras.forEach((b, i) => b.toggleAttribute("data-tocado", i < n));
+      acesas = n;
+    };
+    const marcar = (tocando: boolean) =>
+      botao.setAttribute("aria-pressed", String(tocando));
+    botao.addEventListener("click", () => {
+      if (audio.paused) {
+        document
+          .querySelectorAll<HTMLAudioElement>("[data-player-audio]")
+          .forEach((outro) => outro !== audio && outro.pause());
+        audio.play().catch(() => marcar(false));
+      } else audio.pause();
+    });
+    audio.addEventListener("play", () => marcar(true));
+    audio.addEventListener("pause", () => marcar(false));
+    audio.addEventListener("ended", () => marcar(false));
+    audio.addEventListener("timeupdate", () => {
+      tempo.textContent = formatar(audio.currentTime);
+      acender();
+    });
+  });
+</script>

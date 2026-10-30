@@ -5,6 +5,7 @@ import { hero } from "./hero";
 import { rostos } from "./rostos";
 import { trabalhos } from "./trabalhos";
 import { oficios } from "./oficios";
+import { audios } from "./audios";
 import { sobre } from "./sobre";
 import { filmografia } from "./filmografia";
 import { contato } from "./contato";
@@ -49,6 +50,7 @@ midia.add(
       rostos,
       trabalhos,
       oficios,
+      audios,
       sobre,
       filmografia,
       contato,

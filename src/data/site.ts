@@ -32,6 +32,7 @@ export const site = {
 export const navegacao = [
   { href: "/trabalhos/", rotulo: "Trabalhos" },
   { href: "/#servicos", rotulo: "Serviços" },
+  { href: "/#audios", rotulo: "Áudios" },
   { href: "/#sobre", rotulo: "Sobre" },
   { href: "/#contato", rotulo: "Contato" },
 ] as const;
