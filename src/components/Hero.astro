@@ -349,8 +349,11 @@ const videos = videosHero();
     opacity: 0.65;
   }
   @media (prefers-reduced-motion: no-preference) {
+    /* Espaço de rolagem da coreografia: o diafragma volta, encolhe até o
+       centro e as duas lentes se abrem. Com menos que isso tudo acontecia em
+       meio palmo de rolagem e parecia um salto. */
     :global(html.js:not(.sem-movimento)) .hero {
-      height: 165svh;
+      height: 280svh;
     }
     :global(html.js:not(.sem-movimento)) .hero__palco {
       position: sticky;
@@ -447,7 +450,7 @@ const videos = videosHero();
       bottom: 1.1rem;
     }
     :global(html.js:not(.sem-movimento)) .hero {
-      height: 140svh;
+      height: 230svh;
     }
   }
   @media (prefers-reduced-motion: reduce) {

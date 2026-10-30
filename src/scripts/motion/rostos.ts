@@ -7,6 +7,7 @@ export function rostos(_: Opcoes) {
     ...secao.querySelectorAll<HTMLElement>("[data-rostos-painel]"),
   ];
   const linha = gsap.timeline({
+    defaults: { immediateRender: false },
     scrollTrigger: {
       trigger: secao,
       start: "top top",
@@ -18,7 +19,12 @@ export function rostos(_: Opcoes) {
     if (i === 0) return;
     const quadro = painel.querySelector("[data-rostos-quadro]");
     const legenda = painel.querySelector("figcaption");
+    const anterior = paineis[i - 1].querySelector("figcaption");
     const em = i - 0.45;
+    // As legendas trocam no meio da abertura, quando o rosto novo já domina o
+    // quadro: uma sai e a outra entra em seguida, sem as duas na tela juntas e
+    // sem um trecho longo sem nenhuma.
+    gsap.set(legenda, { autoAlpha: 0 });
     linha
       .set(painel, { visibility: "visible" }, em)
       .fromTo(
@@ -32,16 +38,16 @@ export function rostos(_: Opcoes) {
         em,
       )
       .fromTo(
+        anterior,
+        { autoAlpha: 1, y: 0 },
+        { autoAlpha: 0, y: -8, duration: 0.14, ease: "none" },
+        em + 0.2,
+      )
+      .fromTo(
         legenda,
         { autoAlpha: 0, y: 12 },
-        { autoAlpha: 1, y: 0, duration: 0.25, ease: "power2.out" },
-        // Só depois que a lente abriu quase toda: antes disso o rosto anterior ainda domina o quadro.
-        em + 0.5,
-      )
-      .to(
-        paineis[i - 1].querySelector("figcaption"),
-        { autoAlpha: 0, duration: 0.2 },
-        em,
+        { autoAlpha: 1, y: 0, duration: 0.2, ease: "power2.out" },
+        em + 0.36,
       );
   });
   linha.to({}, { duration: 0.4 });

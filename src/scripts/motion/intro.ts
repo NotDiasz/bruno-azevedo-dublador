@@ -1,5 +1,5 @@
 import { gsap } from "./shared";
-import { estadoCena, atualizarCena } from "./cena";
+import { estadoCena, atualizarCena, escalaDiafragma, RAIO_ANEL } from "./cena";
 export const FIM_DA_INTRO = "bruno:intro-fim";
 // Mesmo nome de EVENTO_3D em components/Objeto3D.tsx (a ilha não importa o GSAP).
 const EVENTO_3D = "bruno:3d";
@@ -15,6 +15,30 @@ export function intro(reduzido: boolean) {
   const letras = document.querySelectorAll("[data-hero-letra]");
   const ui = document.querySelectorAll("[data-hero-ui]");
   const selo = raiz?.querySelector("[data-intro-selo]");
+  const pularBotao = raiz?.querySelector("[data-intro-pular]");
+  const fallback = objeto?.querySelector<HTMLElement>(".objeto3d__fallback");
+  const celular = matchMedia("(max-width: 760px)").matches;
+  /**
+   * Um quadro da intro: o 3D (por evento), a imagem estática do diafragma e o
+   * recorte da foto saem da mesma escala. A foto só aparece dentro do anel, e
+   * o recorte some quando o anel passa das bordas da tela.
+   */
+  const revelar = () => {
+    atualizarCena();
+    const escala = escalaDiafragma(celular);
+    // Movimento reduzido: a imagem fica parada no canto, como o CSS manda.
+    if (fallback && !reduzido)
+      gsap.set(fallback, { xPercent: -50, yPercent: -50, scale: escala });
+    if (!media) return;
+    const tem3d = objeto?.querySelector('[data-renderer="ativo"]');
+    const base = tem3d ? window.innerHeight : (fallback?.offsetHeight ?? 0);
+    const raio =
+      RAIO_ANEL * base * escala * Math.min(1, estadoCena.intro * 12) * 0.97;
+    media.style.clipPath =
+      raio > Math.hypot(window.innerWidth, window.innerHeight) / 2
+        ? "none"
+        : `circle(${raio.toFixed(1)}px at 50% 50%)`;
+  };
   let encerrada = false;
   let tl: gsap.core.Timeline | undefined;
   const concluir = () => {
@@ -23,12 +47,12 @@ export function intro(reduzido: boolean) {
     tl?.kill();
     document.documentElement.classList.add("intro-encerrada");
     if (raiz) raiz.hidden = true;
-    gsap.set(media, { clearProps: "clipPath" });
     gsap.set(letras, { clearProps: "all" });
     gsap.set(ui, { clearProps: "all" });
     gsap.set(".hero__conteudo", { visibility: "visible" });
     estadoCena.intro = 1;
-    atualizarCena();
+    revelar();
+    gsap.set(media, { clearProps: "clipPath" });
     gsap.set(objeto, { autoAlpha: 0 });
     window.__brunoIntroFim = true;
     document.dispatchEvent(new Event(FIM_DA_INTRO));
@@ -77,66 +101,62 @@ export function intro(reduzido: boolean) {
   return concluir;
 
   function comecar() {
-  tl = gsap.timeline({ onComplete: concluir });
-  (window as any).__introTl = tl;
-  tl.to(
-    tracos,
-    { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut", stagger: 0.04 },
-    0,
-  )
-    .to(
-      caminhos,
+    revelar();
+    tl = gsap.timeline({ onComplete: concluir });
+    (window as any).__introTl = tl;
+    tl.to(
+      tracos,
       {
-        fill: getComputedStyle(document.documentElement).getPropertyValue(
-          "--ink",
-        ),
-        duration: 0.25,
+        strokeDashoffset: 0,
+        duration: 0.8,
+        ease: "power2.inOut",
+        stagger: 0.04,
       },
-      0.5,
+      0,
     )
-    .to(
-      selo ?? [],
-      { autoAlpha: 0, scale: 1.25, duration: 0.45, ease: "power2.in" },
-      0.65,
-    )
-    .to(objeto, { autoAlpha: 1, duration: 0.6 }, 0.65)
-    .to(
-      estadoCena,
-      {
-        intro: 1,
-        duration: 2.35,
-        ease: "power3.inOut",
-        onUpdate: atualizarCena,
-      },
-      0.8,
-    )
-    .fromTo(
-      media,
-      { clipPath: "circle(0% at 50% 50%)" },
-      {
-        clipPath: "circle(150% at 50% 50%)",
-        duration: 2.05,
-        ease: "power3.inOut",
-      },
-      0.85,
-    )
-    .to(
-      ".hero__objeto .objeto3d__fallback",
-      { scale: 6, duration: 2.35, ease: "power3.inOut" },
-      0.8,
-    )
-    .to(
-      letras,
-      {
-        yPercent: 0,
-        rotation: 0,
-        duration: 0.85,
-        stagger: 0.035,
-        ease: "power3.out",
-      },
-      2.2,
-    )
-    .to(ui, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 2.65);
+      .to(
+        caminhos,
+        {
+          fill: getComputedStyle(document.documentElement).getPropertyValue(
+            "--ink",
+          ),
+          duration: 0.25,
+        },
+        0.5,
+      )
+      .to(
+        selo ?? [],
+        { autoAlpha: 0, scale: 1.25, duration: 0.45, ease: "power2.in" },
+        0.65,
+      )
+      .to(objeto, { autoAlpha: 1, duration: 0.6 }, 0.65)
+      .to(
+        estadoCena,
+        {
+          intro: 1,
+          duration: 2.35,
+          ease: "power3.inOut",
+          onUpdate: revelar,
+        },
+        0.8,
+      )
+      .to(
+        letras,
+        {
+          yPercent: 0,
+          rotation: 0,
+          duration: 0.85,
+          stagger: 0.035,
+          ease: "power3.out",
+        },
+        2.2,
+      )
+      .to(ui, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 2.65)
+      .to(pularBotao ?? [], { autoAlpha: 0, duration: 0.3 }, 2.2);
+    // Sem 3D (celular), a imagem estática do diafragma não abre as lâminas:
+    // ela se dissolve enquanto cresce e a foto aparece por trás.
+    if (!objeto?.querySelector('[data-renderer="ativo"]'))
+      tl.to(objeto, { autoAlpha: 0, duration: 0.7, ease: "power2.in" }, 1.55);
   }
 }
 

@@ -9,7 +9,18 @@ import {
   criarMicrofone,
   descartarObjeto,
 } from "../lib/objetos3d";
-import { estadoCena, EVENTO_CENA } from "../scripts/motion/cena";
+import {
+  escalaDiafragma,
+  estadoCena,
+  EVENTO_CENA,
+} from "../scripts/motion/cena";
+
+// Resolução da cena: reduzida enquanto as lâminas tomam a tela inteira no meio
+// da intro, onde a resolução não aparece e cada pixel a mais custa um quadro
+// perdido. A troca realoca o canvas (um quadro longo), por isso só acontece na
+// intro e a volta fica para o fim dela, com a tela parada; na rolagem, nunca.
+const DPR_CHEIO = 1.25;
+const DPR_TELA_CHEIA = 0.75;
 
 declare global {
   interface Window {
@@ -36,6 +47,8 @@ function Objeto({
   pronto: () => void;
 }) {
   const { gl, invalidate } = useThree();
+  const setDpr = useThree((estado) => estado.setDpr);
+  const telaCheia = useRef(false);
   const ambiente = useMemo(() => criarAmbiente(gl), [gl]);
   const grupo = useMemo(() => new THREE.Group(), []);
   const principal = useMemo(
@@ -70,12 +83,13 @@ function Objeto({
     if (tipo === "diafragma") {
       const t = s.hero;
       const celular = gl.domElement.clientWidth < 761;
-      const escala = THREE.MathUtils.lerp(
-        1 + Math.pow(s.intro, 3) * 5.2,
-        celular ? 0.24 : 0.67,
-        Math.min(1, t * 1.7),
-      );
+      const escala = escalaDiafragma(celular);
       grupo.scale.setScalar(escala);
+      const cheia = escala > 2.2 && s.intro < 1;
+      if (cheia !== telaCheia.current) {
+        telaCheia.current = cheia;
+        setDpr(cheia ? DPR_TELA_CHEIA : DPR_CHEIO);
+      }
       grupo.rotation.set(0.06 * t, 0.13 * Math.sin(t * Math.PI), -0.08 * t);
       abrirDiafragma(principal, Math.min(1, 0.02 + s.intro * 0.98 + t * 0.1));
     } else {
@@ -139,7 +153,7 @@ export default function CenaEstudio({
   return (
     <Canvas
       frameloop="demand"
-      dpr={[1, celular || tipo === "diafragma" ? 1.25 : 1.6]}
+      dpr={[1, celular || tipo === "diafragma" ? DPR_CHEIO : 1.6]}
       camera={{ position: [0, 0, 6.8], fov: 38, near: 0.1, far: 80 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {

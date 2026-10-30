@@ -1,4 +1,4 @@
-﻿import { gsap, type Opcoes } from "./shared";
+import { gsap, type Opcoes } from "./shared";
 import { estadoCena, atualizarCena } from "./cena";
 export function hero(_: Opcoes) {
   const secao = document.querySelector<HTMLElement>("[data-hero]");
@@ -7,6 +7,15 @@ export function hero(_: Opcoes) {
   const foto = secao.querySelector("[data-hero-midia] .figura");
   const pausa = secao.querySelector<HTMLButtonElement>("[data-hero-pausa]");
   const video = secao.querySelector<HTMLVideoElement>("[data-hero-video]");
+  const fallback = secao.querySelector(".hero__objeto .objeto3d__fallback");
+  // Sem 3D (celular ou sem WebGL), a imagem estática do diafragma tem as
+  // lâminas fechadas: na rolagem ela cobriria a foto de cinza, então fica de
+  // fora e as lentes entram sozinhas.
+  const quadroDaCena = () => {
+    atualizarCena();
+    if (fallback && !secao.querySelector('[data-renderer="ativo"]'))
+      gsap.set(fallback, { visibility: estadoCena.hero > 0 ? "hidden" : "" });
+  };
   const conexao = (
     navigator as Navigator & { connection?: { saveData?: boolean } }
   ).connection;
@@ -75,7 +84,7 @@ export function hero(_: Opcoes) {
   linha
     .to(
       estadoCena,
-      { hero: 1, duration: 1, ease: "none", onUpdate: atualizarCena },
+      { hero: 1, duration: 1, ease: "none", onUpdate: quadroDaCena },
       0,
     )
     .fromTo(
@@ -84,13 +93,19 @@ export function hero(_: Opcoes) {
       { autoAlpha: 1, duration: 0.14, ease: "none" },
       0.08,
     )
-    .to("[data-hero-objeto]", { autoAlpha: 0, duration: 0.12, ease: "none" }, 0.34)
+    .to(
+      "[data-hero-objeto]",
+      { autoAlpha: 0, duration: 0.12, ease: "none" },
+      0.34,
+    )
     .to(
       ".hero__conteudo",
       { yPercent: -12, autoAlpha: 0, duration: 0.28, ease: "none" },
       0,
     )
     .to("[data-hero-ui]", { autoAlpha: 0, duration: 0.18, ease: "none" }, 0)
+    // O botão de pausa só faz sentido enquanto a foto se move.
+    .to(pausa ?? [], { autoAlpha: 0, duration: 0.14, ease: "none" }, 0.2)
     .to(media, { autoAlpha: 0, scale: 0.87, duration: 0.5, ease: "none" }, 0.1)
     .fromTo(
       "[data-hero-dupla]",

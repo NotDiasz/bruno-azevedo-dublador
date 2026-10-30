@@ -14,24 +14,29 @@ export const curva = {
   vai: "power3.inOut",
 };
 
-// As entradas disparam quando o elemento encosta na borda de baixo da tela.
-// Até lá ele fica visível: o estado escondido só é aplicado no instante em que
-// a entrada começa (immediateRender: false), então nada que ainda não foi
-// rolado fica invisível para quem pula direto para lá ou para quem mede a página.
-export const INICIO = "top bottom-=40";
+// As entradas disparam quando o gatilho passa de 90% da altura da tela.
+export const INICIO = "top 90%";
 
 const reclamados = new WeakSet<Element>();
 
-/** Marca elementos cuja entrada uma seção faz por conta própria e tira o esconderijo do CSS. */
+/** Marca elementos cuja entrada uma seção faz por conta própria. */
 export function reclamar(...elementos: Element[]) {
   elementos.forEach((el) => reclamados.add(el));
-  gsap.set(elementos, { autoAlpha: 1, y: 0 });
 }
 
-/** Linha do tempo de entrada que só aplica o estado inicial quando dispara. */
+/**
+ * Só ganha entrada o que ainda está abaixo da tela: esse começa escondido e
+ * aparece ao chegar. O que já está à vista (ou já passou, quando a página abre
+ * no meio) fica como está. Esconder só no instante do gatilho fazia o elemento
+ * aparecer, sumir e entrar de novo: o piscar dos títulos.
+ */
+export function aindaAbaixo(el: Element) {
+  return el.getBoundingClientRect().top > window.innerHeight;
+}
+
+/** Linha do tempo de entrada, disparada uma vez quando o gatilho chega. */
 export function aoEntrar(gatilho: Element, inicio = INICIO) {
   return gsap.timeline({
-    defaults: { immediateRender: false },
     scrollTrigger: { trigger: gatilho, start: inicio, once: true },
   });
 }
@@ -45,9 +50,10 @@ export function entrar(
   gatilho: Element,
   { y = 24, intervalo = 0.075, duracao = 0.8, inicio = INICIO } = {},
 ) {
-  const lista = [...alvos].filter(Boolean);
+  const todos = [...alvos].filter(Boolean);
+  reclamar(...todos);
+  const lista = todos.filter(aindaAbaixo);
   if (!lista.length) return;
-  reclamar(...lista);
   return aoEntrar(gatilho, inicio).fromTo(
     lista,
     { autoAlpha: 0, y },

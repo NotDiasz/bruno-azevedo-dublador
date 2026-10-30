@@ -68,38 +68,33 @@ export default function VersaoBrasileira({ itens, bruno }: Props) {
     const nomes = [
       ...document.querySelectorAll<HTMLElement>("[data-trabalho-nome]"),
     ];
-    if (!nomes.length || !("IntersectionObserver" in window)) return;
-    // Entre os nomes na faixa do meio da tela, vale o mais perto do centro. A
-    // faixa é larga para uma rolagem rápida não pular nenhum nome.
-    const naFaixa = new Set<HTMLElement>();
+    if (!nomes.length) return;
+    // Vale o nome mais perto do meio da tela, entre os que estão à vista. A
+    // conta roda a cada rolagem (um quadro por vez) e logo ao montar: assim a
+    // página aberta no meio da seção, ou um salto por âncora, já mostra o
+    // trabalho certo.
+    let pedido = 0;
     const escolher = () => {
+      pedido = 0;
       const meio = window.innerHeight / 2;
-      let melhor: HTMLElement | undefined;
+      let melhor = -1;
       let distancia = Infinity;
-      naFaixa.forEach((nome) => {
+      nomes.forEach((nome, indice) => {
         const r = nome.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
         const d = Math.abs(r.top + r.height / 2 - meio);
-        if (d < distancia) [melhor, distancia] = [nome, d];
+        if (d < distancia) [melhor, distancia] = [indice, d];
       });
-      const indice = Number(melhor?.dataset.trabalhoNome);
-      if (melhor && !Number.isNaN(indice)) setAtual(indice);
+      const escolhido = Number(nomes[melhor]?.dataset.trabalhoNome);
+      if (melhor >= 0 && !Number.isNaN(escolhido)) setAtual(escolhido);
     };
-    const observador = new IntersectionObserver(
-      (entradas) => {
-        for (const entrada of entradas) {
-          const nome = entrada.target as HTMLElement;
-          if (entrada.isIntersecting) naFaixa.add(nome);
-          else naFaixa.delete(nome);
-        }
-        escolher();
-      },
-      { rootMargin: "-35% 0px -35% 0px" },
-    );
-    nomes.forEach((nome) => observador.observe(nome));
-    const aoRolar = () => naFaixa.size > 1 && escolher();
+    const aoRolar = () => {
+      if (!pedido) pedido = requestAnimationFrame(escolher);
+    };
+    escolher();
     window.addEventListener("scroll", aoRolar, { passive: true });
     return () => {
-      observador.disconnect();
+      cancelAnimationFrame(pedido);
       window.removeEventListener("scroll", aoRolar);
     };
   }, []);
